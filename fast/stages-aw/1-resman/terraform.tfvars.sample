@@ -1,0 +1,14 @@
+tenants = {
+ tenant_name = { # don't forget to change this
+   admin_principal  = "group:gcp-devops@domain"
+   descriptive_name = "tenant_name"
+   compliance = {
+     regime   = "IL5"
+     location = "US"
+   }
+   locations = {
+     gcs = "us-east4"
+     kms = "us-east4"
+   }
+ },
+}
