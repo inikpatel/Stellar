@@ -150,18 +150,16 @@ import {
     !var.org_policies_config.import_defaults || var.bootstrap_user != null
     ? toset([])
     : toset([
-      "compute.requireOsLogin",
-      "compute.skipDefaultNetworkCreation",
-      "compute.vmExternalIpAccess",
-      "compute.setNewProjectDefaultToZonalDNSOnly",
-      "essentialcontacts.allowedContactDomains",
-      "iam.allowedPolicyMemberDomains",
-      "iam.automaticIamGrantsForDefaultServiceAccounts",
+      # source: https://cloud.google.com/resource-manager/docs/secure-by-default-organizations#organization_policies_enforced_on_organization_resources
+      # listed in the order as on page
       "iam.disableServiceAccountKeyCreation",
       "iam.disableServiceAccountKeyUpload",
-      "sql.restrictAuthorizedNetworks",
-      "sql.restrictPublicIp",
+      "iam.automaticIamGrantsForDefaultServiceAccounts",
+      "iam.allowedPolicyMemberDomains",
+      "essentialcontacts.allowedContactDomains",
       "storage.uniformBucketLevelAccess",
+      "compute.setNewProjectDefaultToZonalDNSOnly",
+      # "compute.restrictProtocolForwardingCreationForTypes",  # not confirmed that this is live, but listed on webpage
     ])
   )
   id = "organizations/${var.organization.id}/policies/${each.key}"
@@ -181,6 +179,23 @@ module "organization-logging" {
   }
 }
 
+resource "google_assured_workloads_workload" "primary" {
+  compliance_regime            = var.assured_workloads.regime
+  display_name                 = "StellarEngine-${var.prefix}"
+  location                     = var.assured_workloads.location
+  organization                 = var.organization.id
+  billing_account              = "billingAccounts/${var.billing_account.id}"
+  provisioned_resources_parent = ""
+  resource_settings {
+    display_name  = "StellarEngine-${var.prefix}"
+    resource_type = "CONSUMER_FOLDER"
+  }
+
+  violation_notifications_enabled = true
+  lifecycle {
+    create_before_destroy = true
+  }
+}
 module "organization" {
   source          = "../../../modules/organization"
   organization_id = module.organization-logging.id

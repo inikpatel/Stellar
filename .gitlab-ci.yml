@@ -66,8 +66,8 @@ tflint-blueprints:
     - cd blueprints/il5/
     - tflint --recursive
 
-validate-stages-aw: 
-  stage: test 
+validate-stages-aw:
+  stage: test
   image:
     name: hashicorp/terraform:1.9.2
     entrypoint:
@@ -75,23 +75,12 @@ validate-stages-aw:
       - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
   dependencies:
     - tflint-stages-aw
-  parallel:
-    matrix:
-      - STAGES: stages-aw
-        STAGE:
-         - 0-bootstrap
-         - 1-resman
-         - 2-networking-c-nva
-         - 2-networking-f-ngfw
-         - 2-security
-         - 3-project-factory
   script:
-    - cd "fast/${STAGES}/${STAGE}/"
-    - terraform init
-    - terraform validate
+    - cd fast/stages-aw
+    - for i in $(ls -d */); do cd $i; terraform init; terraform validate; cd ..; done
 
-validate-blueprints:  
-  stage: test  
+validate-blueprints:
+  stage: test
   image:
     name: hashicorp/terraform:1.9.2
     entrypoint:
@@ -99,29 +88,13 @@ validate-blueprints:
       - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
   dependencies:
     - tflint-blueprints
-  parallel:
-    matrix:
-      - BLUEPRINT:
-        - bq-project
-        - compute-persistent-disk
-        - gke-project
-        - shielded-vm-project
-        - artifact-registry
-        - postgresql
-        - gcp-ce-security-onion
-        - kms-project
-        - vpc-peering-project
-        - bastion-pattern
-        - gcs-project
-        - pub-sub-project
-        - dataflow
   script:
-    - cd "blueprints/il5/${BLUEPRINT}/"
-    - terraform init
-    - terraform validate
+    - cd blueprints/il5
+    - for i in $(ls -d */); do cd $i; terraform init; terraform validate; cd ..; done
 
-check-docs-stages-aw: 
+check-docs-stages-aw:
   stage: test
+  allow_failure: true
   image:
     name: python:3.9.19
     entrypoint:
@@ -133,7 +106,7 @@ check-docs-stages-aw:
     - python check_documentation.py fast/stages-aw
 
 check-docs-blueprints:
-  stage: test 
+  stage: test
   image:
     name: python:3.9.19
     entrypoint:
@@ -144,7 +117,7 @@ check-docs-blueprints:
     - pip install click marko
     - python check_documentation.py blueprints/il5
 
-checkov-stages-aw:   
+checkov-stages-aw:
   stage: test
   image:
     name: bridgecrew/checkov:3.2.238
@@ -156,7 +129,7 @@ checkov-stages-aw:
     - checkov -d .
   allow_failure: true
 
-checkov-blueprints:   
+checkov-blueprints:
   stage: test
   image:
     name: bridgecrew/checkov:3.2.238

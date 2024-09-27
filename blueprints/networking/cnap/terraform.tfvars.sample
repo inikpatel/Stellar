@@ -1,0 +1,9 @@
+region               = "us-east4"
+project              = "cnap-ops"
+network              = "vpc-cnap-secops"
+default_backend      = "easy"
+domain               = "my-fun.domain.tld"
+oauth_brand_number   = 222222222222
+organization         = 123123123111
+billing_account      = "AABBCC-A23BC8-DDEECC"
+access_policy_number = 123123123123

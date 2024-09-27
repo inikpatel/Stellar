@@ -38,3 +38,8 @@ log_sinks = {
       type   = "pubsub"
     }
 }
+
+org_policies_config = {
+  import_defaults = true
+}
+
